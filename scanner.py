@@ -1,18 +1,19 @@
-from filters import check_filters
-from x_hype import check_x_hype
+import requests
 
 def scan_new_coins():
+    coins = []
+
+    # Example dummy data (replace with real API later)
     coin = {
-        "name": "AI_TEST",
-        "liquidity": 6000,
-        "dev_hold": 3,
-        "top10": 20,
-        "holders": 120,
-        "score": 80,
-        # TEST IMAGE (abhi)
-        "image": "https://cryptologos.cc/logos/solana-sol-logo.png"
+        "name": "TESTINU",
+        "mint": "So11111111111111111111111111111111111111112",
+        "marketcap": "$45k",
+        "holders": 320,
+        "dev_hold": 2,
+        "top10": 18,
+        "image": "https://pump.fun/logo.png",
+        "twitter": "https://twitter.com/search?q=TESTINU"
     }
 
-    if check_filters(coin) and check_x_hype(coin["name"]):
-        return [coin]
-    return []
+    coins.append(coin)
+    return coins

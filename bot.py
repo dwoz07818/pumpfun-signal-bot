@@ -1,33 +1,45 @@
-from telegram import Bot
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from scanner import scan_new_coins
-from config import TELEGRAM_TOKEN, CHAT_ID
+from filters import check_filters
+from config import *
 import time
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
 def send_signal(coin):
-    msg = f"""
-🚀 EARLY SIGNAL
+    pumpfun = f"https://pump.fun/{coin['mint']}"
+    bullx   = f"https://bullx.io/terminal?chain=solana&address={coin['mint']}"
+    axiom   = f"https://axiom.trade/token/{coin['mint']}"
 
-Name: {coin['name']}
-Liquidity: ${coin['liquidity']}
-Dev Hold: {coin['dev_hold']}%
-Top10: {coin['top10']}%
-Holders: {coin['holders']}
-Score: {coin['score']}
+    keyboard = [
+        [InlineKeyboardButton("🚀 Buy on Pump.fun", url=pumpfun)],
+        [
+            InlineKeyboardButton("📈 BullX", url=bullx),
+            InlineKeyboardButton("⚡ Axiom", url=axiom)
+        ],
+        [InlineKeyboardButton("🔥 X Hype", url=coin["twitter"])]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    caption = f"""
+🪙 *{coin['name']}*
+💰 MC: {coin['marketcap']}
+👥 Holders: {coin['holders']}
+🧠 Risk: {coin['risk']}
 """
 
-    if "image" in coin and coin["image"]:
-        bot.send_photo(
-            chat_id=CHAT_ID,
-            photo=coin["image"],
-            caption=msg
-        )
-    else:
-        bot.send_message(chat_id=CHAT_ID, text=msg)
+    bot.send_photo(
+        chat_id=CHAT_ID,
+        photo=coin["image"],
+        caption=caption,
+        parse_mode="Markdown",
+        reply_markup=reply_markup
+    )
 
 while True:
     coins = scan_new_coins()
-    for c in coins:
-        send_signal(c)
+    for coin in coins:
+        if check_filters(coin):
+            send_signal(coin)
     time.sleep(60)
